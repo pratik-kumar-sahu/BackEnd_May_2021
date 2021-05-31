@@ -19,11 +19,24 @@ app.get("/", (req, res) => {
 
 app.get("/userinfo/:id", async (req, res) => {
   try {
+    const id = req.params.id;
+    if (!id.match(/^[0-9a-fA-F]{24}$/)) {
+      return res.send({
+        status: "failure",
+        message: "User not found",
+      });
+    }
     const user = await User.findById(req.params.id);
-    const { name, email, about, photo } = user;
+    if (user) {
+      const { name, email, about, photo } = user;
+      return res.send({
+        status: "success",
+        data: { name, email, about, photo },
+      });
+    }
     return res.send({
-      status: "success",
-      data: { name, email, about, photo },
+      status: "failure",
+      message: "User not found",
     });
   } catch (err) {
     console.log(err.message);
